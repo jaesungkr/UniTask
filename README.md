@@ -328,7 +328,7 @@ public async UniTask<int> BarAsync()
 }
 ```
 
-throws/catch `OperationCanceledException` is slightly heavy, so if performance is a concern, use `UniTask.SuppressCancellationThrow` to avoid OperationCanceledException throw. It returns `(bool IsCanceled, T Result)` instead of throwing.
+Use `UniTask.SuppressCancellationThrow` to receive cancellation as a result instead of catching `OperationCanceledException` at the await site. It returns `bool IsCanceled` for `UniTask`, or `(bool IsCanceled, T Result)` for `UniTask<T>`.
 
 ```csharp
 var (isCanceled, _) = await UniTask.DelayFrame(10, cancellationToken: cts.Token).SuppressCancellationThrow();
@@ -338,7 +338,7 @@ if (isCanceled)
 }
 ```
 
-Note: Only suppress throws if you call directly into the most source method. Otherwise, the return value will be converted, but the entire pipeline will not suppress throws.
+Note: The underlying source is still consumed through `GetResult` so that it can perform cleanup, including returning pooled sources to their pool. If the source throws `OperationCanceledException`, it is caught internally; this method does not guarantee an exception-free cancellation path. It also does not suppress exceptions thrown earlier in an async pipeline.
 
 Some features that use Unity's player loop, such as `UniTask.Yield` and `UniTask.Delay` etc, determines CancellationToken state on the player loop. 
 This means it does not cancel immediately upon `CancellationToken` fired. 

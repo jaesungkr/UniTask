@@ -6,7 +6,7 @@ using Xunit;
 
 namespace NetCoreTests
 {
-    public class AutoResetUniTaskCompletionSourceTest
+    public partial class AutoResetUniTaskCompletionSourceTest
     {
         [Fact]
         public async Task SetResultAfterReturn()
